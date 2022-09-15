@@ -31,7 +31,7 @@ type post struct {
 	Tim          int64  `json:"tim"`
 	Time         int64  `json:"time"`
 	Md5          string `json:"md5"`
-	Fsize        string `json:"fsize"`
+	Fsize        int    `json:"fsize"`
 	Resto        int    `json:"resto"`
 	Bumplimit    int    `json:"bumplimit"`
 	Imagelimit   int    `json:"imagelimit"`
@@ -39,6 +39,10 @@ type post struct {
 	Replies      int    `json:"replies"`
 	Images       int    `json:"images"`
 	Unique_ips   int    `json:"unique_ips"`
+}
+
+type post_array struct {
+	Posts []post `json:"posts"`
 }
 
 func list_threads(body []byte) []int {
@@ -62,10 +66,18 @@ func list_threads(body []byte) []int {
 }
 
 func list_posts(body []byte) []string {
-	var post_list []string
-	var dat map[string]interface{}
+	var media_list []string
+	var dat post_array
 
 	err := json.Unmarshal(body, &dat)
 	checkErr(err)
-	return post_list
+
+	post_list := dat.Posts
+	for i := 0; i < len(post_list); i++ {
+		post_content := post_list[i]
+		if post_content.Tim != 0 {
+			media_list = append(media_list, fmt.Sprint(post_content.Tim)+fmt.Sprint(post_content.Ext))
+		}
+	}
+	return media_list
 }
