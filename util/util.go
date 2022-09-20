@@ -1,4 +1,4 @@
-package common
+package util
 
 /*
  Check error and panic if not nil.
