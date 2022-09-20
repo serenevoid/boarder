@@ -1,7 +1,7 @@
 package models
 
 import (
-	"boarder/common"
+	"boarder/util"
 	"encoding/json"
 )
 
@@ -50,7 +50,7 @@ func Get_threads_from_json(body []byte) []int {
 	var threads_list []int
 
 	err := json.Unmarshal(body, &dat)
-	common.CheckErr(err)
+	util.CheckErr(err)
 
 	for i := 0; i < len(dat); i++ {
 		page := dat[i]
@@ -70,7 +70,7 @@ func Get_posts_from_json(body []byte) []Post {
 	var dat post_array
 
 	err := json.Unmarshal(body, &dat)
-	common.CheckErr(err)
+	util.CheckErr(err)
 
 	post_list := dat.Posts
 	for i := 0; i < len(post_list); i++ {

@@ -1,7 +1,7 @@
 package networking
 
 import (
-	"boarder/common"
+	"boarder/util"
 	"boarder/models"
 	"bytes"
 	"crypto/tls"
@@ -29,16 +29,16 @@ func get_response(url string) []byte {
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
-	common.CheckErr(err)
+	util.CheckErr(err)
 
 	req.Header.Set("User-Agent", "linux:go-postgrabber:v0.1")
 
 	resp, err := client.Do(req)
-	common.CheckErr(err)
+	util.CheckErr(err)
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
-	common.CheckErr(err)
+	util.CheckErr(err)
 
     return body
 }
