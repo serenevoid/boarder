@@ -1,6 +1,8 @@
-package main
+package networking
 
 import (
+	"boarder/common"
+	"boarder/models"
 	"bytes"
 	"crypto/tls"
 	"errors"
@@ -12,7 +14,7 @@ import (
 	"sync"
 )
 
-func get_user_input() string {
+func Get_user_input() string {
 	var i string
 	fmt.Print("Enter Board ID: ")
 	fmt.Scan(&i)
@@ -27,31 +29,31 @@ func get_response(url string) []byte {
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
-	checkErr(err)
+	common.CheckErr(err)
 
 	req.Header.Set("User-Agent", "linux:go-postgrabber:v0.1")
 
 	resp, err := client.Do(req)
-	checkErr(err)
+	common.CheckErr(err)
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
-	checkErr(err)
+	common.CheckErr(err)
 
     return body
 }
 
-func get_threads(board string) []int {
+func Get_threads_from_board(board string) []int {
 	url := fmt.Sprintf("https://a.4cdn.org/%s/threads.json", board)
     body := get_response(url)
-	threads := list_threads(body)
+	threads := models.Get_threads_from_json(body)
 	return threads
 }
 
-func get_posts(board string, thread int) []string {
+func Get_posts_from_threads(board string, thread int) []models.Post {
 	url := fmt.Sprintf("https://a.4cdn.org/%s/thread/%s.json", board, fmt.Sprint(thread))
     body := get_response(url)
-	posts := list_posts(body)
+	posts := models.Get_posts_from_json(body)
 	return posts
 }
 
@@ -72,7 +74,7 @@ func downloadFile(URL string) ([]byte, error) {
 	return data.Bytes(), nil
 }
 
-func downloadMultipleFiles(urls []string) {
+func Download_media(urls []string) {
 	var waiter sync.WaitGroup
 	waiter.Add(len(urls))
 	for _, URL := range urls {

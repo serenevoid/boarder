@@ -1,8 +1,8 @@
-package main
+package models
 
 import (
+	"boarder/common"
 	"encoding/json"
-	"fmt"
 )
 
 type thread struct {
@@ -16,7 +16,7 @@ type page struct {
 	Threads []thread `json:"threads"`
 }
 
-type post struct {
+type Post struct {
 	No           int    `json:"no"`
 	Now          string `json:"now"`
 	Name         string `json:"name"`
@@ -42,15 +42,15 @@ type post struct {
 }
 
 type post_array struct {
-	Posts []post `json:"posts"`
+	Posts []Post `json:"posts"`
 }
 
-func list_threads(body []byte) []int {
+func Get_threads_from_json(body []byte) []int {
 	var dat []page
 	var threads_list []int
 
 	err := json.Unmarshal(body, &dat)
-	checkErr(err)
+	common.CheckErr(err)
 
 	for i := 0; i < len(dat); i++ {
 		page := dat[i]
@@ -65,18 +65,18 @@ func list_threads(body []byte) []int {
 	return threads_list
 }
 
-func list_posts(body []byte) []string {
-	var media_list []string
+func Get_posts_from_json(body []byte) []Post {
+	var media_list []Post
 	var dat post_array
 
 	err := json.Unmarshal(body, &dat)
-	checkErr(err)
+	common.CheckErr(err)
 
 	post_list := dat.Posts
 	for i := 0; i < len(post_list); i++ {
 		post_content := post_list[i]
 		if post_content.Tim != 0 {
-			media_list = append(media_list, fmt.Sprint(post_content.Tim)+fmt.Sprint(post_content.Ext))
+			media_list = append(media_list, post_content)
 		}
 	}
 	return media_list
