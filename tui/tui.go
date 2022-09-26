@@ -54,11 +54,16 @@ func (m model) View() string {
 		lipgloss.Top,
 		windowStyle.
 			Width(windowSize.Width/4).
-			Height((windowSize.Height/2)-2).
+			Height(1).
+            Align(lipgloss.Center).
+			Render("Boarder V0.0.1"),
+		windowStyle.
+			Width(windowSize.Width/4).
+			Height((windowSize.Height/2)-4).
 			Render(m.WindowContent[0]),
 		windowStyle.
 			Width(windowSize.Width/4).
-			Height((windowSize.Height/2)-1).
+			Height((windowSize.Height/2)-3).
 			Render(m.WindowContent[1]),
 	)
 	row := lipgloss.JoinHorizontal(
