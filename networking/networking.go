@@ -14,9 +14,16 @@ import (
 	"sync"
 )
 
-func Get_user_input() string {
+func Get_board_from_user() string {
 	var i string
 	fmt.Print("Enter Board ID: ")
+	fmt.Scan(&i)
+	return i
+}
+
+func Get_thread_from_user() int {
+	var i int
+	fmt.Print("Enter thread ID: ")
 	fmt.Scan(&i)
 	return i
 }

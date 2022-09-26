@@ -2,6 +2,7 @@ package storage
 
 import (
 	"boarder/models"
+	"boarder/networking"
 	"encoding/json"
 	"fmt"
 	"sync"
@@ -32,7 +33,24 @@ func SetupDB() (*bolt.DB, error) {
 	return db, nil
 }
 
-func Store_data(db *bolt.DB, board string, thread int, posts []models.Post) error {
+func Update_db(db *bolt.DB, board string, threads []int) {
+	var wg sync.WaitGroup
+	for i := 1; i < len(threads); i++ {
+		wg.Add(1)
+        i := i
+		go func(wg *sync.WaitGroup) {
+			posts := networking.Get_posts_from_threads(board, threads[i])
+            err := store_data(db, board, threads[i], posts)
+			if err != nil {
+				panic(err)
+			}
+            wg.Done()
+		}(&wg)
+	}
+    wg.Wait()
+}
+
+func store_data(db *bolt.DB, board string, thread int, posts []models.Post) error {
 	existing_post_id_list, err := get_existing_post_id_list(db, thread)
 	if err != nil {
 		return fmt.Errorf("cannot view existing key: %v", err)
@@ -111,4 +129,20 @@ func update_bucket(db *bolt.DB, bucket string, key []byte, value []byte) error {
 		return nil
 	})
 	return err
+}
+
+func read_threads(db *bolt.DB) {
+    err := db.View(func(tx *bolt.Tx) error {
+		// Assume bucket exists and has keys
+		b := tx.Bucket([]byte("THREAD"))
+
+		b.ForEach(func(k, v []byte) error {
+			fmt.Printf("key=%s, value=%s\n", k, v)
+			return nil
+		})
+		return nil
+	})
+	if err != nil {
+		panic(err)
+	}
 }
