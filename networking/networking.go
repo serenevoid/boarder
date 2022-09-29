@@ -1,8 +1,8 @@
 package networking
 
 import (
-	"boarder/util"
 	"boarder/models"
+	"boarder/util"
 	"bytes"
 	"crypto/tls"
 	"errors"
@@ -10,8 +10,11 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
+
+	progressbar "github.com/schollz/progressbar/v3"
 )
 
 func Get_board_from_user() string {
@@ -47,19 +50,22 @@ func get_response(url string) []byte {
 	body, err := ioutil.ReadAll(resp.Body)
 	util.CheckErr(err)
 
-    return body
+	return body
 }
 
 func Get_threads_from_board(board string) []int {
 	url := fmt.Sprintf("https://a.4cdn.org/%s/threads.json", board)
-    body := get_response(url)
+	body := get_response(url)
 	threads := models.Get_threads_from_json(body)
 	return threads
 }
 
-func Get_posts_from_threads(board string, thread int) []models.Post {
+func Get_posts_from_thread(entry string) []models.Post {
+	entry_elements := strings.Split(entry, "_")
+	board := entry_elements[0]
+	thread := entry_elements[1]
 	url := fmt.Sprintf("https://a.4cdn.org/%s/thread/%s.json", board, fmt.Sprint(thread))
-    body := get_response(url)
+	body := get_response(url)
 	posts := models.Get_posts_from_json(body)
 	return posts
 }
@@ -81,22 +87,34 @@ func downloadFile(URL string) ([]byte, error) {
 	return data.Bytes(), nil
 }
 
-func Download_media(urls []string) {
+func Download_media(file_list []models.File) {
 	var waiter sync.WaitGroup
-	waiter.Add(len(urls))
-	for _, URL := range urls {
-		go func(URL string, waiter *sync.WaitGroup) {
-			b, err := downloadFile(URL)
-			url_comp := strings.Split(URL, "/")
-			file_name := url_comp[len(url_comp)-1]
-			fmt.Println("Started - " + file_name)
-			if err != nil {
-				return
+	waiter.Add(len(file_list))
+	bar := progressbar.NewOptions(len(file_list),
+		progressbar.OptionEnableColorCodes(true),
+		progressbar.OptionShowBytes(true),
+		progressbar.OptionSetWidth(15),
+		progressbar.OptionSetDescription("Downloading media of posts..."),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "[green]=[reset]",
+			SaucerHead:    "[green]>[reset]",
+			SaucerPadding: " ",
+			BarStart:      "[",
+			BarEnd:        "]",
+		}))
+	for _, file := range file_list {
+		go func(file models.File, waiter *sync.WaitGroup) {
+			_, err := os.Stat(file.File_name)
+			if errors.Is(err, os.ErrNotExist) {
+				b, err := downloadFile(file.URL)
+				if err != nil {
+					util.CheckErr(err)
+				}
+				ioutil.WriteFile(file.File_name, b, 0777)
 			}
-			ioutil.WriteFile("r_"+file_name, b, 0777)
 			waiter.Done()
-			fmt.Println("Downloaded - " + file_name)
-		}(URL, &waiter)
+			bar.Add(1)
+		}(file, &waiter)
 	}
 	waiter.Wait()
 }
