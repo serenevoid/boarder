@@ -92,8 +92,9 @@ func Download_media(file_list []models.File) {
 	waiter.Add(len(file_list))
 	bar := progressbar.NewOptions(len(file_list),
 		progressbar.OptionEnableColorCodes(true),
-		progressbar.OptionShowBytes(true),
-		progressbar.OptionSetWidth(15),
+		progressbar.OptionSetWidth(20),
+        progressbar.OptionSetPredictTime(false),
+        progressbar.OptionSetElapsedTime(false),
 		progressbar.OptionSetDescription("Downloading media of posts..."),
 		progressbar.OptionSetTheme(progressbar.Theme{
 			Saucer:        "[green]=[reset]",
