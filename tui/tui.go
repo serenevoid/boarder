@@ -1,10 +1,12 @@
 package tui
 
 import (
+	"boarder/storage"
 	"fmt"
 	"os"
 	"strings"
 
+	"github.com/boltdb/bolt"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -70,9 +72,10 @@ func (m model) View() string {
 	return docStyle.Render(doc.String())
 }
 
-func Setup_UI() {
+func Setup_UI(db *bolt.DB) {
 	windows := []string{"Board", "Thread", "Content"}
-	windowContent := []string{"Board\n/w/\n/wg/\n/p/", "Thread\n283948\n289437\n289372", "Content\nHello there\nThis is the content of this thread"}
+	//windowContent := []string{"Board\n/w/\n/wg/\n/p/", "Thread\n283948\n289437\n289372", "Content\nHello there\nThis is the content of this thread"}
+    windowContent := []string{strings.Join(storage.Read_threads(db), "\n"), "Thread\n283948\n289437\n289372", "Content\nHello there\nThis is the content of this thread"}
 	m := model{Windows: windows, WindowContent: windowContent}
 	if err := tea.NewProgram(m, tea.WithAltScreen()).Start(); err != nil {
 		fmt.Println("Error running program:", err)
