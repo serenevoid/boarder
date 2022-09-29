@@ -12,8 +12,7 @@ for boarder, make an issue!
 ## Usage
 Add `threads.txt` on the folder where you will be running boarder. The 
 contents of the file would be the list of threads you want to subscribe to.
-The format should be "board_thread"
-Eg.
+The format to add a thread is `board_thread`.
 ```
 // Anime Wallpaper
 w_2185924
