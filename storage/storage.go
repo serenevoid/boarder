@@ -18,7 +18,3 @@ func Store_posts_in_md(entry string, posts []models.Post) {
     defer f.Close()
     f.WriteString(content)
 }
-
-func Store_post_images(posts []models.Post) {
-
-}
