@@ -44,5 +44,6 @@ func Load_config() []string {
 
 func create_folder_structure(board string, thread string) {
     sep := string(os.PathSeparator)
-	os.MkdirAll("archive"+sep+board+sep+thread+sep+"media", 0777)
+    err := os.MkdirAll("archive"+sep+board+sep+thread+sep+"media", 0777)
+    CheckErr(err)
 }
