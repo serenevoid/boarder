@@ -2,6 +2,7 @@ package util
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strings"
 )
@@ -10,8 +11,6 @@ import (
  Check error and panic if not nil.
 
  @param {error} err - error variable
-
- @example checkErr(err)
 */
 func CheckErr(err error) {
 	if err != nil {
@@ -19,9 +18,17 @@ func CheckErr(err error) {
 	}
 }
 
-func Load_config() []string {
+/*
+    Load the config file threads.txt from directoy of running the program
+
+    @return []string - array of threads
+*/
+func Load_config() ([]string, error) {
 	f, err := os.Open("threads.txt")
-	CheckErr(err)
+    if err != nil {
+        return nil, fmt.Errorf("file threads.txt does not exist")
+    }
+    defer f.Close()
 	scanner := bufio.NewScanner(f)
 
     var entry_list []string
@@ -38,8 +45,10 @@ func Load_config() []string {
 			}
 		}
 	}
-	CheckErr(scanner.Err())
-    return entry_list
+    if err = scanner.Err(); err != nil {
+        return nil, fmt.Errorf("unable to read threads.txt %s", err)
+    }
+    return entry_list, nil
 }
 
 func create_folder_structure(board string, thread string) {

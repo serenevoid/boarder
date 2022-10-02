@@ -10,7 +10,11 @@ import (
 
 func main() {
     fmt.Println("BOARDER V0.1.0")
-	entry_list := util.Load_config()
+	entry_list, err := util.Load_config()
+    if err != nil {
+        fmt.Print("Error: ", err)
+        return
+    }
     var file_list []models.File
     fmt.Println("Collecting thread data...")
 	for _, entry := range entry_list {
