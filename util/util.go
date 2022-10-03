@@ -28,6 +28,9 @@ func Load_config() ([]string, error) {
 			if !strings.HasPrefix(entry, "//") {
 				entry_list = append(entry_list, entry)
 				entry_elements := strings.Split(entry, "_")
+                if len(entry_elements) != 2 {
+                    return nil, fmt.Errorf("entry not in proper format: %s", entry)
+                }
 				board := entry_elements[0]
 				thread := entry_elements[1]
 				err := create_folder_structure(board, thread)
