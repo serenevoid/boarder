@@ -2,7 +2,6 @@ package networking
 
 import (
 	"boarder/models"
-	"boarder/util"
 	"bytes"
 	"crypto/tls"
 	"errors"
@@ -13,25 +12,16 @@ import (
 	"os"
 	"strings"
 	"sync"
-
-	progressbar "github.com/schollz/progressbar/v3"
 )
 
-func Get_board_from_user() string {
-	var i string
-	fmt.Print("Enter Board ID: ")
-	fmt.Scan(&i)
-	return i
-}
+/*
+    Get all response data from an http req.
 
-func Get_thread_from_user() int {
-	var i int
-	fmt.Print("Enter thread ID: ")
-	fmt.Scan(&i)
-	return i
-}
+    @param string - the URL to request data from
 
-func get_response(url string) []byte {
+    @return ([]byte, error) - (response body data, error)
+*/
+func get_response(url string) ([]byte, error) {
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{},
@@ -39,37 +29,56 @@ func get_response(url string) []byte {
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
-	util.CheckErr(err)
+	if err != nil {
+		return nil, err
+	}
 
 	req.Header.Set("User-Agent", "linux:go-postgrabber:v0.1")
 
 	resp, err := client.Do(req)
-	util.CheckErr(err)
-
+	if err != nil {
+		return nil, err
+	}
 	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
-	util.CheckErr(err)
+	if err != nil {
+		return nil, err
+	}
 
-	return body
+	return body, nil
 }
 
-func Get_threads_from_board(board string) []int {
-	url := fmt.Sprintf("https://a.4cdn.org/%s/threads.json", board)
-	body := get_response(url)
-	threads := models.Get_threads_from_json(body)
-	return threads
-}
+/*
+    Get all posts from a thread
 
-func Get_posts_from_thread(entry string) []models.Post {
+    @param string - board and thread ID
+
+    @return ([]Posts, error) - (list of posts present in thread, error)
+*/
+func Get_posts_from_thread(entry string) ([]models.Post, error) {
 	entry_elements := strings.Split(entry, "_")
 	board := entry_elements[0]
 	thread := entry_elements[1]
 	url := fmt.Sprintf("https://a.4cdn.org/%s/thread/%s.json", board, fmt.Sprint(thread))
-	body := get_response(url)
-	posts := models.Get_posts_from_json(body)
-	return posts
+	body, err := get_response(url)
+	if err != nil {
+		return nil, err
+	}
+	posts, err := models.Get_posts_from_json(body)
+	if err != nil {
+		return nil, err
+	}
+	return posts, nil
 }
 
+/*
+    Download specified file from URL.
+
+    @param string - URL of the file
+
+    @return ([]byte, error) - bytes recieved from the request
+*/
 func downloadFile(URL string) ([]byte, error) {
 	response, err := http.Get(URL)
 	if err != nil {
@@ -87,34 +96,25 @@ func downloadFile(URL string) ([]byte, error) {
 	return data.Bytes(), nil
 }
 
+/*
+    Download a files from a given list
+
+    @param []File - list of all files to be downloaded
+*/
 func Download_media(file_list []models.File) {
 	var waiter sync.WaitGroup
 	waiter.Add(len(file_list))
-	bar := progressbar.NewOptions(len(file_list),
-		progressbar.OptionEnableColorCodes(true),
-		progressbar.OptionSetWidth(20),
-        progressbar.OptionSetPredictTime(false),
-        progressbar.OptionSetElapsedTime(false),
-		progressbar.OptionSetDescription("Downloading media of posts..."),
-		progressbar.OptionSetTheme(progressbar.Theme{
-			Saucer:        "[green]=[reset]",
-			SaucerHead:    "[green]>[reset]",
-			SaucerPadding: " ",
-			BarStart:      "[",
-			BarEnd:        "]",
-		}))
 	for _, file := range file_list {
 		go func(file models.File, waiter *sync.WaitGroup) {
 			_, err := os.Stat(file.File_name)
 			if errors.Is(err, os.ErrNotExist) {
 				b, err := downloadFile(file.URL)
 				if err != nil {
-					util.CheckErr(err)
+					fmt.Println("Download of " + file.File_name + " failed")
 				}
 				ioutil.WriteFile(file.File_name, b, 0777)
 			}
 			waiter.Done()
-			bar.Add(1)
 		}(file, &waiter)
 	}
 	waiter.Wait()
