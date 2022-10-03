@@ -43,5 +43,6 @@ func main() {
 		file_list = append(file_list, thread_file_list...)
 	}
 
+	fmt.Println("Downloading media content...")
 	networking.Download_media(file_list)
 }

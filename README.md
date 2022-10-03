@@ -1,8 +1,5 @@
-<div align="center">
-
 # Boarder
 ##### A minimal 4chan board hoarder
-</div>
 
 ## WIP
 This is not fully baked, but still useable. If you experience any issues, 
