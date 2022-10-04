@@ -8,7 +8,7 @@ import (
 )
 
 /*
-    Thread struct used to store the thread details
+   Thread struct used to store the thread details
 */
 type thread struct {
 	No            int `json:"no"`
@@ -17,7 +17,7 @@ type thread struct {
 }
 
 /*
-    Page struct used to store page details
+   Page struct used to store page details
 */
 type page struct {
 	Page    uint8    `json:"page"`
@@ -25,7 +25,7 @@ type page struct {
 }
 
 /*
-    Post struct used to store post details
+   Post struct used to store post details
 */
 type Post struct {
 	No           int    `json:"no"`
@@ -43,7 +43,7 @@ type Post struct {
 	Time         int64  `json:"time"`
 	Md5          string `json:"md5"`
 	Fsize        int    `json:"fsize"`
-    Size         string
+	Size         string
 	Resto        int    `json:"resto"`
 	Bumplimit    int    `json:"bumplimit"`
 	Imagelimit   int    `json:"imagelimit"`
@@ -54,35 +54,35 @@ type Post struct {
 }
 
 /*
-    Post array type to store array of posts 
+   Post array type to store array of posts
 */
 type post_array struct {
 	Posts []Post `json:"posts"`
 }
 
 /*
-    File struct to store file data
+   File struct to store file data
 */
 type File struct {
-	File_name string
-	URL       string
+	File_name     string
+	Media_URL     string
 }
 
 /*
-    Extract the thread IDs from the json byte array.
+   Extract the thread IDs from the json byte array.
 
-    @param []byte - the body of the response from http req
+   @param []byte - the body of the response from http req
 
-    @return ([]int, error) - (array of thread IDs, error)
+   @return ([]int, error) - (array of thread IDs, error)
 */
 func Get_threads_from_json(body []byte) ([]int, error) {
 	var dat []page
 	var threads_list []int
 
 	err := json.Unmarshal(body, &dat)
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 
 	for i := 0; i < len(dat); i++ {
 		page := dat[i]
@@ -98,25 +98,25 @@ func Get_threads_from_json(body []byte) ([]int, error) {
 }
 
 /*
-    Extract the thread IDs from the json byte array.
+   Extract the thread IDs from the json byte array.
 
-    @param []byte - the body of the response from http req
+   @param []byte - the body of the response from http req
 
-    @return ([]int, error) - (array of thread IDs, error)
+   @return ([]int, error) - (array of thread IDs, error)
 */
 func Get_posts_from_json(body []byte) ([]Post, error) {
 	var media_list []Post
 	var dat post_array
 
 	err := json.Unmarshal(body, &dat)
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 
 	post_list := dat.Posts
 	for i := 0; i < len(post_list); i++ {
 		post_content := post_list[i]
-        post_content.Size = ByteCountDecimal(post_content.Fsize)
+		post_content.Size = ByteCountDecimal(post_content.Fsize)
 		if post_content.Tim != 0 {
 			media_list = append(media_list, post_content)
 		}
@@ -125,11 +125,11 @@ func Get_posts_from_json(body []byte) ([]Post, error) {
 }
 
 /*
-    Convert post details to a string form to store in md file.
+   Convert post details to a string form to store in md file.
 
-    @param []Post - array of all posts present in a thread
+   @param []Post - array of all posts present in a thread
 
-    @return string - all posts combined to a single string
+   @return string - all posts combined to a single string
 */
 func Format_posts_to_string(posts []Post) string {
 	var content string
@@ -206,11 +206,11 @@ func Format_posts_to_string(posts []Post) string {
 }
 
 /*
-    Get all media URLs from the list of posts for downloading them.
+   Get all media URLs from the list of posts for downloading them.
 
-    @param (string, []Post) - (board and thread ID, array of all posts)
+   @param (string, []Post) - (board and thread ID, array of all posts)
 
-    @return ([]File, error) - (list of all files, error)
+   @return ([]File, error) - (list of all files, error)
 */
 func Get_media_urls_from_posts(entry string, posts []Post) ([]File, error) {
 	var file_list []File
@@ -219,36 +219,44 @@ func Get_media_urls_from_posts(entry string, posts []Post) ([]File, error) {
 	thread := entry_elements[1]
 
 	for _, post := range posts {
-		var new_file File
+		var media_file File
 		if post.Filename != "" {
 			sep := string(os.PathSeparator)
-			new_file.File_name = "archive" + sep + board + sep + thread + sep + "media" + sep + post.Filename + post.Ext
+			media_file.File_name = "archive" + sep + board + sep + thread + sep + "media" + sep + post.Filename + post.Ext
 		}
 		if post.Tim != 0 {
-			new_file.URL = fmt.Sprintf("https://i.4cdn.org/%s/%s%s", board, fmt.Sprint(post.Tim), post.Ext)
+			media_file.Media_URL = fmt.Sprintf("https://i.4cdn.org/%s/%s%s", board, fmt.Sprint(post.Tim), post.Ext)
 		}
-		file_list = append(file_list, new_file)
+		var thumbnail_file File
+		if post.Filename != "" {
+			sep := string(os.PathSeparator)
+			thumbnail_file.File_name = "archive" + sep + board + sep + thread + sep + "thumbnails" + sep + post.Filename + "s.jpg"
+		}
+		if post.Tim != 0 {
+			thumbnail_file.Media_URL = fmt.Sprintf("https://i.4cdn.org/%s/%ss.jpg", board, fmt.Sprint(post.Tim))
+		}
+		file_list = append(file_list, media_file, thumbnail_file)
 	}
 
 	return file_list, nil
 }
 
 /*
-    Convert size from bytes to a readable format
+   Convert size from bytes to a readable format
 
-    @param (int) - (size byte int)
+   @param (int) - (size byte int)
 
-    @return (string) - (readable string format)
+   @return (string) - (readable string format)
 */
 func ByteCountDecimal(b int) string {
-        const unit = 1000
-        if b < unit {
-                return fmt.Sprintf("%d B", b)
-        }
-        div, exp := int64(unit), 0
-        for n := b / unit; n >= unit; n /= unit {
-                div *= unit
-                exp++
-        }
-        return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "kMGTPE"[exp])
+	const unit = 1000
+	if b < unit {
+		return fmt.Sprintf("%d B", b)
+	}
+	div, exp := int64(unit), 0
+	for n := b / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "kMGTPE"[exp])
 }

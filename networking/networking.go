@@ -108,7 +108,7 @@ func Download_media(file_list []models.File) {
 		go func(file models.File, waiter *sync.WaitGroup) {
 			_, err := os.Stat(file.File_name)
 			if errors.Is(err, os.ErrNotExist) {
-				b, err := downloadFile(file.URL)
+				b, err := downloadFile(file.Media_URL)
 				if err != nil {
 					fmt.Println("Download of " + file.File_name + " failed")
 				}
