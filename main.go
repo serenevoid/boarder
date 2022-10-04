@@ -28,7 +28,13 @@ func main() {
 			return
 		}
 
-		err = storage.Store_posts_in_md(entry, posts)
+		err = storage.Store_posts_as_json(entry, posts)
+		if err != nil {
+			fmt.Print("Error: ", err)
+			return
+		}
+
+        err = storage.Create_html_page(entry, posts)
 		if err != nil {
 			fmt.Print("Error: ", err)
 			return

@@ -2,6 +2,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{{ .Title }}</title>
         <script>
             function open_overlay(content) {
@@ -45,6 +46,7 @@
         <style>
             body {
                 background-color: #383838;
+                overflow-x: hidden; /* Disable horizontal scroll */
             }
             a {
                 color: #4488bb
@@ -62,19 +64,20 @@
                 border-radius: 10px;
                 display: block;
                 font-size: 15px;
+                overflow-x: hidden; /* Disable horizontal scroll */
             }
             div.overlay  {
                 /* Height & width depends on how you want to reveal the overlay (see JS below) */   
-                height: 100%;
-                width: 100%;
+                height: 100vh;
+                width: 100vw;
                 position: fixed; /* Stay in place */
                 z-index: 1; /* Sit on top */
                 left: 0;
                 top: 0;
                 background-color: rgb(0,0,0); /* Black fallback color */
                 background-color: rgba(0,0,0, 0.8); /* Black w/opacity */
-                overflow-x: hidden; /* Disable horizontal scroll */
                 display: none;
+                overflow-x: hidden; /* Disable horizontal scroll */
                 justify-content: center;
                 align-items: center;
                 transition: opacity 0.25s;
