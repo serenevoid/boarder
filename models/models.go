@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"html/template"
 )
 
 /*
@@ -33,6 +34,7 @@ type Post struct {
 	Name         string `json:"name"`
 	Sub          string `json:"sub"`
 	Com          string `json:"Com"`
+	Com_html     template.HTML
 	Filename     string `json:"filename"`
 	Ext          string `json:"ext"`
 	W            int    `json:"w"`
@@ -117,6 +119,7 @@ func Get_posts_from_json(body []byte) ([]Post, error) {
 	for i := 0; i < len(post_list); i++ {
 		post_content := post_list[i]
 		post_content.Size = ByteCountDecimal(post_content.Fsize)
+        post_content.Com_html = template.HTML(post_content.Com)
 		if post_content.Tim != 0 {
 			media_list = append(media_list, post_content)
 		}

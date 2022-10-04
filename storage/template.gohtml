@@ -89,7 +89,7 @@
     <body>
         <div class="postContents">
         {{range .Posts}}
-            <div class="postContainer">
+        <div id="p{{ .No }}" class="postContainer">
                 <div class="postDetails"> 
                     <span class="nameBlock">
                         <span class="name">{{ .Name }}</span>
@@ -114,7 +114,7 @@
                     </div>
                     <img src="./thumbnails/{{ .Filename }}s.jpg" alt="{{ .Filename }}{{ .Ext }}" data-md5="{{ .Md5 }}" loading="lazy" onclick="open_overlay(this)">
                 </div>
-                <blockquote>{{ .Com }}</blockquote>
+                <blockquote>{{ .Com_html }}</blockquote>
             </div>
         {{end}}
         </div>
