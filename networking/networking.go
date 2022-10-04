@@ -41,6 +41,10 @@ func get_response(url string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
+    if resp.StatusCode != 200 {
+        return nil, nil
+    }
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
@@ -63,8 +67,12 @@ func Get_posts_from_thread(entry string) ([]models.Post, error) {
 	url := fmt.Sprintf("https://a.4cdn.org/%s/thread/%s.json", board, fmt.Sprint(thread))
 	body, err := get_response(url)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s %s", err, entry)
 	}
+    if body == nil {
+        fmt.Println("Unable to reach thread ", entry)
+        return nil, nil
+    }
 	posts, err := models.Get_posts_from_json(body)
 	if err != nil {
 		return nil, err

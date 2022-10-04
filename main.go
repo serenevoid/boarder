@@ -27,6 +27,9 @@ func main() {
 			fmt.Print("Error: ", err)
 			return
 		}
+        if posts == nil {
+            continue
+        }
 
 		err = storage.Store_posts_as_json(entry, posts)
 		if err != nil {
