@@ -32,6 +32,7 @@
                 const overlay_image = document.getElementById("overlay_image")
                 const overlay_video = document.getElementById("overlay_video")
                 overlay.style.opacity = 0
+                overlay_video.pause()
                 setTimeout(() => {
                     overlay.style.display = "none"
                     overlay_image.style.display = "none"
