@@ -57,5 +57,9 @@ func create_folder_structure(board string, thread string) error {
 	if err != nil {
 		return fmt.Errorf("unable to create folder structure")
 	}
+	err = os.MkdirAll("archive"+sep+board+sep+thread+sep+"thumbnails", 0777)
+	if err != nil {
+		return fmt.Errorf("unable to create folder structure")
+	}
 	return nil
 }

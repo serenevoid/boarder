@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{ .Title }}</title>
+        <script>
+            function open_overlay(content) {
+                var file_name = content.alt
+                var element_type = ""
+                file_name_contents = file_name.split(".")
+                var ext = file_name_contents[file_name_contents.length - 1]
+                const overlay = document.getElementById("overlay")
+                const overlay_image = document.getElementById("overlay_image")
+                const overlay_video = document.getElementById("overlay_video")
+                const overlay_button = document.getElementById("overlay_button")
+                if (["jpg", "png", "gif", "jpeg"].includes(ext)) {
+                    overlay_image.src = "./media/" + file_name
+                    overlay_image.style.display = "block"
+                    overlay_button.href = "./media/" + file_name
+                } else {
+                    overlay_video.src = "./media/" + file_name
+                    overlay_video.style.display = "block"
+                    overlay_button.href = "./media/" + file_name
+                }
+                overlay.style.display = "flex"
+                setTimeout(() => {
+                    overlay.style.opacity = 1
+                }, 10)
+            }
+            function close_overlay() {
+                const overlay = document.getElementById("overlay")
+                const overlay_image = document.getElementById("overlay_image")
+                const overlay_video = document.getElementById("overlay_video")
+                overlay.style.opacity = 0
+                overlay_video.pause()
+                setTimeout(() => {
+                    overlay.style.display = "none"
+                    overlay_image.style.display = "none"
+                    overlay_video.style.display = "none"
+                    overlay_image.src = ""
+                    overlay_video.src = ""
+                }, 250)
+            }
+        </script>
+        <style>
+            body {
+                background-color: #383838;
+                overflow-x: hidden; /* Disable horizontal scroll */
+            }
+            a {
+                color: #4488bb
+            }
+            subject {
+                font-size: 16px;
+            }
+            div.postContainer {
+                max-width: 1000px;
+                background-color: #282828;
+                border: 2px solid #686868!important;
+                padding: 5px;
+                margin: 5px auto 5px auto;
+                color: #D6DAF0;
+                border-radius: 10px;
+                display: block;
+                font-size: 15px;
+                overflow-x: hidden; /* Disable horizontal scroll */
+            }
+            div.overlay  {
+                /* Height & width depends on how you want to reveal the overlay (see JS below) */   
+                height: 100vh;
+                width: 100vw;
+                position: fixed; /* Stay in place */
+                z-index: 1; /* Sit on top */
+                left: 0;
+                top: 0;
+                background-color: rgb(0,0,0); /* Black fallback color */
+                background-color: rgba(0,0,0, 0.8); /* Black w/opacity */
+                display: none;
+                overflow-x: hidden; /* Disable horizontal scroll */
+                justify-content: center;
+                align-items: center;
+                transition: opacity 0.25s;
+                opacity: 0;
+                font-size: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="postContents">
+        {{range .Posts}}
+        <div id="p{{ .No }}" class="postContainer">
+                <div class="postDetails"> 
+                    <span class="nameBlock">
+                        <span class="name">{{ .Name }}</span>
+                        <br>
+                        <span class="subject">{{ .Sub }}</span>
+                    </span>
+                    <br>
+                    <span>
+                        {{ .Now }}
+                        <a href="#p{{ .No }}" title="Link to this post">
+                            No. {{ .No }}
+                        </a>
+                    </span>
+                </div>
+                <div class="file">
+                    <div class="fileText">
+                        File: 
+                        <a title="{{ .Filename }}{{ .Ext }}" href="./media/{{ .Filename }}{{ .Ext }}" target="_blank">
+                            {{ .Filename }}{{ .Ext }}
+                        </a> 
+                        ({{ .Size }}, {{ .W }}x{{ .H }})
+                    </div>
+                    <img src="./thumbnails/{{ .Filename }}s.jpg" alt="{{ .Filename }}{{ .Ext }}" data-md5="{{ .Md5 }}" loading="lazy" onclick="open_overlay(this)">
+                </div>
+                <blockquote>{{ .Com_html }}</blockquote>
+            </div>
+        {{end}}
+        </div>
+        <div class="overlay" id="overlay" onclick="close_overlay()">
+            <div class="overlayContent">
+                <img id="overlay_image" src="" alt="" style="display: none; max-width: 90vw; max-height: 90vh">
+                <video id="overlay_video" controls="" loop="" autoplay="" style="display: none; max-width: 90vw; max-height: 90vh" src=""></video>
+                <a id="overlay_button" href="" rel="noreferrer noopener" target="_blank" role="button" tabindex="0">
+                    Open original
+                </a>
+            </div>
+        </div>
+    </body>
+</html>
