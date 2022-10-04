@@ -20,7 +20,7 @@
                 color: #4488bb
             }
             subject {
-                font-style: "bold"
+                font-size: 16px;
             }
             div.postContainer {
                 max-width: 1000px;
@@ -37,7 +37,7 @@
     <body>
         {{range .Posts}}
             <div class="postContainer">
-                <div> 
+                <div class="postDetails"> 
                     <span class="nameBlock">
                         <span class="name">{{ .Name }}</span>
                         <br>
@@ -55,9 +55,9 @@
                     <div class="fileText">
                         File: 
                         <a title="{{ .Filename }}{{ .Ext }}" href="./media/{{ .Filename }}{{ .Ext }}" target="_blank">
-                            {{ .Filename }}
+                            {{ .Filename }}{{ .Ext }}
                         </a> 
-                        ({{ .Fsize }}, {{ .W }}x{{ .H }})
+                        ({{ .Size }}, {{ .W }}x{{ .H }})
                     </div>
                     <img src="./media/{{ .Filename }}{{ .Ext }}" alt="{{ .Size }}" data-md5="{{ .Md5 }}" style="width: 250px;" loading="lazy" onclick="expand_image(this)">
                 </div>

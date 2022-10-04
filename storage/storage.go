@@ -2,7 +2,6 @@ package storage
 
 import (
 	"boarder/models"
-	"fmt"
 	"html/template"
 	"os"
 	"strings"

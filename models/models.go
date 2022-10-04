@@ -43,6 +43,7 @@ type Post struct {
 	Time         int64  `json:"time"`
 	Md5          string `json:"md5"`
 	Fsize        int    `json:"fsize"`
+    Size         string
 	Resto        int    `json:"resto"`
 	Bumplimit    int    `json:"bumplimit"`
 	Imagelimit   int    `json:"imagelimit"`
@@ -115,6 +116,7 @@ func Get_posts_from_json(body []byte) ([]Post, error) {
 	post_list := dat.Posts
 	for i := 0; i < len(post_list); i++ {
 		post_content := post_list[i]
+        post_content.Size = ByteCountDecimal(post_content.Fsize)
 		if post_content.Tim != 0 {
 			media_list = append(media_list, post_content)
 		}
@@ -229,4 +231,24 @@ func Get_media_urls_from_posts(entry string, posts []Post) ([]File, error) {
 	}
 
 	return file_list, nil
+}
+
+/*
+    Convert size from bytes to a readable format
+
+    @param (int) - (size byte int)
+
+    @return (string) - (readable string format)
+*/
+func ByteCountDecimal(b int) string {
+        const unit = 1000
+        if b < unit {
+                return fmt.Sprintf("%d B", b)
+        }
+        div, exp := int64(unit), 0
+        for n := b / unit; n >= unit; n /= unit {
+                div *= unit
+                exp++
+        }
+        return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "kMGTPE"[exp])
 }
