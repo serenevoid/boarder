@@ -2,7 +2,7 @@
 ##### A minimal 4chan board hoarder
 
 ## WIP
-This is not fully baked, but still useable. If you experience any issues, 
+This is not fully baked, but still usable. If you experience any issues, 
 see some improvement you think would be amazing, or just have some feedback 
 for boarder, make an issue!
 
