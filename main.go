@@ -12,8 +12,6 @@ func main() {
 
 	var file_list []models.File
 
-	fmt.Println("BOARDER V0.1.0")
-
 	entry_list, err := util.Load_config()
 	if err != nil {
 		fmt.Print("Error: ", err)

@@ -36,7 +36,7 @@ func Store_posts_as_json(entry string, posts []models.Post) error {
 }
 
 func Create_html_page(entry string, posts []models.Post) error {
-    t := template.Must(template.ParseFiles("./storage/template.html"))
+    t := template.Must(template.ParseFiles("./template.html"))
     entry_elements := strings.Split(entry, "_")
     board := entry_elements[0]
     thread := entry_elements[1]
