@@ -33,6 +33,9 @@ wg_7920373
 ```
 
 ## Screenshots
+- Terminal View
 ![Terminal](./screenshots/terminal.png "Terminal")
+- Normal View
 ![Normal Mode](./screenshots/normal_mode.png "Normal Mode")
+- Preview Mode
 ![Preview Mode](./screenshots/preview_mode.png "Preview Mode")
