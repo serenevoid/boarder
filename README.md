@@ -19,8 +19,8 @@ see some improvement you think would be amazing, or just have some feedback
 for boarder, make an issue!
 
 ## Usage
-Add `threads.txt` on the folder where you will be running boarder. The 
-contents of the file would be the list of threads you want to subscribe to.
+Add `threads.txt` and `template.html` on the folder where you will be running boarder. 
+The contents of the text file would be the list of threads you want to subscribe to.
 The format to add a thread is `(board ID)_(thread No.)`.
 ```
 // Anime Wallpaper
