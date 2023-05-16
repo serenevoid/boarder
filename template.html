@@ -45,20 +45,24 @@
         </script>
         <style>
             body {
-                background-color: #383838;
+                background-color: #000000;
                 overflow-x: hidden; /* Disable horizontal scroll */
             }
             a {
-                color: #4488bb
+                color: #324A5F
             }
             subject {
                 font-size: 16px;
             }
+            #preview {
+                border-radius: 0.5em;
+                cursor: pointer;
+            }
             div.postContainer {
                 max-width: 1000px;
-                background-color: #282828;
-                border: 2px solid #686868!important;
-                padding: 5px;
+                background-color: #0C1821;
+                border: 2px solid #1B2A41!important;
+                padding: 1em;
                 margin: 5px auto 5px auto;
                 color: #D6DAF0;
                 border-radius: 10px;
@@ -104,16 +108,18 @@
                         </a>
                     </span>
                 </div>
+                {{ if .IsMediaPresent }}
                 <div class="file">
                     <div class="fileText">
                         File: 
-                        <a title="{{ .Filename }}{{ .Ext }}" href="./media/{{ .Filename }}{{ .Ext }}" target="_blank">
-                            {{ .Filename }}{{ .Ext }}
+                        <a title="{{ .Filename }}{{ .Ext }}" href="./media/{{ .File_ID }}{{ .Ext }}" target="_blank">
+                            {{ .File_ID }}{{ .Ext }}
                         </a> 
                         ({{ .Size }}, {{ .W }}x{{ .H }})
                     </div>
-                    <img src="./thumbnails/{{ .Filename }}s.jpg" alt="{{ .Filename }}{{ .Ext }}" data-md5="{{ .Md5 }}" loading="lazy" onclick="open_overlay(this)">
+                    <img id="preview" src="./thumbnails/{{ .File_ID }}s.jpg" alt="{{ .File_ID }}{{ .Ext }}" data-md5="{{ .Md5 }}" loading="lazy" onclick="open_overlay(this)">
                 </div>
+                {{ end }}
                 <blockquote>{{ .Com_html }}</blockquote>
             </div>
         {{end}}

@@ -3,13 +3,13 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"os"
 	"strings"
-	"html/template"
 )
 
 /*
-   Thread struct used to store the thread details
+Thread struct used to store the thread details
 */
 type thread struct {
 	No            int `json:"no"`
@@ -18,7 +18,7 @@ type thread struct {
 }
 
 /*
-   Page struct used to store page details
+Page struct used to store page details
 */
 type page struct {
 	Page    uint8    `json:"page"`
@@ -26,56 +26,58 @@ type page struct {
 }
 
 /*
-   Post struct used to store post details
+Post struct used to store post details
 */
 type Post struct {
-	No           int    `json:"no"`
-	Now          string `json:"now"`
-	Name         string `json:"name"`
-	Sub          string `json:"sub"`
-	Com          string `json:"Com"`
-	Com_html     template.HTML
-	Filename     string `json:"filename"`
-	Ext          string `json:"ext"`
-	W            int    `json:"w"`
-	H            int    `json:"h"`
-	Tn_w         int    `json:"tn_w"`
-	Tn_h         int    `json:"tn_h"`
-	Tim          int64  `json:"tim"`
-	Time         int64  `json:"time"`
-	Md5          string `json:"md5"`
-	Fsize        int    `json:"fsize"`
-	Size         string
-	Resto        int    `json:"resto"`
-	Bumplimit    int    `json:"bumplimit"`
-	Imagelimit   int    `json:"imagelimit"`
-	Semantic_url string `json:"semantic_url"`
-	Replies      int    `json:"replies"`
-	Images       int    `json:"images"`
-	Unique_ips   int    `json:"unique_ips"`
+	No             int    `json:"no"`
+	Now            string `json:"now"`
+	Name           string `json:"name"`
+	Sub            string `json:"sub"`
+	Com            string `json:"Com"`
+	Com_html       template.HTML
+	Filename       string `json:"filename"`
+	File_ID        string
+	IsMediaPresent bool
+	Ext            string `json:"ext"`
+	W              int    `json:"w"`
+	H              int    `json:"h"`
+	Tn_w           int    `json:"tn_w"`
+	Tn_h           int    `json:"tn_h"`
+	Tim            int64  `json:"tim"`
+	Time           int64  `json:"time"`
+	Md5            string `json:"md5"`
+	Fsize          int    `json:"fsize"`
+	Size           string
+	Resto          int    `json:"resto"`
+	Bumplimit      int    `json:"bumplimit"`
+	Imagelimit     int    `json:"imagelimit"`
+	Semantic_url   string `json:"semantic_url"`
+	Replies        int    `json:"replies"`
+	Images         int    `json:"images"`
+	Unique_ips     int    `json:"unique_ips"`
 }
 
 /*
-   Post array type to store array of posts
+Post array type to store array of posts
 */
 type post_array struct {
 	Posts []Post `json:"posts"`
 }
 
 /*
-   File struct to store file data
+File struct to store file data
 */
 type File struct {
-	File_name     string
-	Media_URL     string
+	File_name string
+	Media_URL string
 }
 
 /*
-   Extract the thread IDs from the json byte array.
+Extract the thread IDs from the json byte array.
 
-   @param []byte - the body of the response from http req
+@param []byte - the body of the response from http req
 
-   @return ([]int, error) - (array of thread IDs, error)
+@return ([]int, error) - (array of thread IDs, error)
 */
 func Get_threads_from_json(body []byte) ([]int, error) {
 	var dat []page
@@ -100,11 +102,11 @@ func Get_threads_from_json(body []byte) ([]int, error) {
 }
 
 /*
-   Extract the thread IDs from the json byte array.
+Extract the thread IDs from the json byte array.
 
-   @param []byte - the body of the response from http req
+@param []byte - the body of the response from http req
 
-   @return ([]int, error) - (array of thread IDs, error)
+@return ([]int, error) - (array of thread IDs, error)
 */
 func Get_posts_from_json(body []byte) ([]Post, error) {
 	var media_list []Post
@@ -119,20 +121,23 @@ func Get_posts_from_json(body []byte) ([]Post, error) {
 	for i := 0; i < len(post_list); i++ {
 		post_content := post_list[i]
 		post_content.Size = ByteCountDecimal(post_content.Fsize)
-        post_content.Com_html = template.HTML(post_content.Com)
+		post_content.Com_html = template.HTML(post_content.Com)
+		post_content.IsMediaPresent = false
 		if post_content.Tim != 0 {
-			media_list = append(media_list, post_content)
+			post_content.File_ID = fmt.Sprint(post_content.Tim)
+			post_content.IsMediaPresent = true
 		}
+		media_list = append(media_list, post_content)
 	}
 	return media_list, nil
 }
 
 /*
-   Get all media URLs from the list of posts for downloading them.
+Get all media URLs from the list of posts for downloading them.
 
-   @param (string, []Post) - (board and thread ID, array of all posts)
+@param (string, []Post) - (board and thread ID, array of all posts)
 
-   @return ([]File, error) - (list of all files, error)
+@return ([]File, error) - (list of all files, error)
 */
 func Get_media_urls_from_posts(entry string, posts []Post) ([]File, error) {
 	var file_list []File
@@ -144,7 +149,7 @@ func Get_media_urls_from_posts(entry string, posts []Post) ([]File, error) {
 		var media_file File
 		if post.Filename != "" {
 			sep := string(os.PathSeparator)
-			media_file.File_name = "archive" + sep + board + sep + thread + sep + "media" + sep + post.Filename + post.Ext
+			media_file.File_name = "archive" + sep + board + sep + thread + sep + "media" + sep + post.File_ID + post.Ext
 		}
 		if post.Tim != 0 {
 			media_file.Media_URL = fmt.Sprintf("https://i.4cdn.org/%s/%s%s", board, fmt.Sprint(post.Tim), post.Ext)
@@ -152,7 +157,7 @@ func Get_media_urls_from_posts(entry string, posts []Post) ([]File, error) {
 		var thumbnail_file File
 		if post.Filename != "" {
 			sep := string(os.PathSeparator)
-			thumbnail_file.File_name = "archive" + sep + board + sep + thread + sep + "thumbnails" + sep + post.Filename + "s.jpg"
+			thumbnail_file.File_name = "archive" + sep + board + sep + thread + sep + "thumbnails" + sep + fmt.Sprint(post.Tim) + "s.jpg"
 		}
 		if post.Tim != 0 {
 			thumbnail_file.Media_URL = fmt.Sprintf("https://i.4cdn.org/%s/%ss.jpg", board, fmt.Sprint(post.Tim))
@@ -164,11 +169,11 @@ func Get_media_urls_from_posts(entry string, posts []Post) ([]File, error) {
 }
 
 /*
-   Convert size from bytes to a readable format
+Convert size from bytes to a readable format
 
-   @param (int) - (size byte int)
+@param (int) - (size byte int)
 
-   @return (string) - (readable string format)
+@return (string) - (readable string format)
 */
 func ByteCountDecimal(b int) string {
 	const unit = 1000
